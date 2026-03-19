@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Add Slots — BlueApple Admin{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Add Slots</h1>
+    <p class="page-sub">Create one or bulk-create slots across multiple days</p>
+  </div>
+  <a href="{{ url_for('admin.manage_slots') }}" class="btn-ghost">Back to slots</a>
+</div>
+
+<div class="form-card">
+  <form method="POST" action="{{ url_for('admin.add_slot') }}" class="admin-form">
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="date">Start date</label>
+        <input type="date" id="date" name="date" required />
+      </div>
+      <div class="field">
+        <label for="capacity">Capacity per slot</label>
+        <input type="number" id="capacity" name="capacity" value="1" min="1" max="50" required />
+      </div>
+      <div class="field">
+        <label for="start_time">Start time</label>
+        <input type="time" id="start_time" name="start_time" value="09:00" required />
+      </div>
+      <div class="field">
+        <label for="end_time">End time</label>
+        <input type="time" id="end_time" name="end_time" value="09:30" required />
+      </div>
+    </div>
+
+    <div class="field field-row" style="margin-top:0.5rem">
+      <label class="checkbox-label">
+        <input type="checkbox" name="bulk" id="bulkToggle" onchange="toggleBulk(this)" />
+        <span>Repeat for multiple days</span>
+      </label>
+    </div>
+
+    <div class="field" id="bulkDaysField" style="display:none">
+      <label for="bulk_days">Number of days to repeat</label>
+      <input type="number" id="bulk_days" name="bulk_days" value="7" min="1" max="60" />
+      <span class="field-hint">
+        e.g. 7 = creates this slot for 7 consecutive days starting from the selected date
+      </span>
+    </div>
+
+    <button type="submit" class="btn-primary" style="margin-top:1.5rem">Create Slot(s)</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleBulk(cb) {
+  document.getElementById('bulkDaysField').style.display = cb.checked ? 'block' : 'none';
+}
+</script>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Create Account — BlueApple{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+  <div class="auth-header">
+    <div class="auth-logo">
+      <span class="brand-dot brand-dot-lg"></span>
+      BlueApple
+    </div>
+    <h1>Create account</h1>
+    <p>Book and manage slots in seconds</p>
+  </div>
+
+  <form method="POST" action="{{ url_for('auth.register') }}" class="auth-form">
+    <div class="field">
+      <label for="name">Full name</label>
+      <input type="text" id="name" name="name" placeholder="Ravi Kumar" required autofocus />
+    </div>
+    <div class="field">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" placeholder="you@example.com" required />
+    </div>
+    <div class="field">
+      <label for="phone">Phone <span class="label-hint">(optional)</span></label>
+      <input type="tel" id="phone" name="phone" placeholder="+91 98765 43210" />
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="Min. 6 characters" required />
+    </div>
+    <div class="field">
+      <label for="admin_secret">
+        Admin secret <span class="label-hint">(leave blank if not admin)</span>
+      </label>
+      <input type="password" id="admin_secret" name="admin_secret" placeholder="Enter if you have one" />
+    </div>
+    <button type="submit" class="btn-primary btn-full">Create account</button>
+  </form>
+
+  <div class="auth-footer">
+    Already have an account?
+    <a href="{{ url_for('auth.login') }}">Sign in</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Users — BlueApple Admin{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Users</h1>
+    <p class="page-sub">{{ users|length }} registered account{{ 's' if users|length != 1 }}</p>
+  </div>
+</div>
+
+<div class="bookings-table-wrap">
+  <table class="bookings-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Role</th>
+        <th>Joined</th>
+        <th>Bookings</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>
+          <div class="user-chip" style="display:inline-flex">
+            <span class="user-avatar" style="width:28px;height:28px;font-size:11px">{{ u.name[0].upper() }}</span>
+            <span class="user-label">{{ u.name }}</span>
+          </div>
+        </td>
+        <td>{{ u.email }}</td>
+        <td class="muted-cell">{{ u.phone or '—' }}</td>
+        <td>
+          {% if u.is_admin %}
+          <span class="status-badge status-admin">Admin</span>
+          {% else %}
+          <span class="status-badge status-pending">User</span>
+          {% endif %}
+        </td>
+        <td class="muted-cell">{{ u.created_at.strftime('%d %b %Y') }}</td>
+        <td>{{ u.bookings | length }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Manage Slots — BlueApple Admin{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Manage Slots</h1>
+    <p class="page-sub">All upcoming active and inactive slots</p>
+  </div>
+  <a href="{{ url_for('admin.add_slot') }}" class="btn-primary">+ Add Slots</a>
+</div>
+
+{% if slots %}
+<div class="bookings-table-wrap">
+  <table class="bookings-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Capacity</th>
+        <th>Booked</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in slots %}
+      <tr class="{% if not s.is_active %}row-cancelled{% endif %}">
+        <td>{{ s.date.strftime('%d %b %Y') }}</td>
+        <td>{{ s.start_time.strftime('%I:%M %p') }}</td>
+        <td>{{ s.end_time.strftime('%I:%M %p') }}</td>
+        <td>{{ s.capacity }}</td>
+        <td>{{ s.booked_count }}</td>
+        <td>
+          {% if s.is_active %}
+          <span class="status-badge status-confirmed">Active</span>
+          {% else %}
+          <span class="status-badge status-cancelled">Inactive</span>
+          {% endif %}
+        </td>
+        <td class="action-cell">
+          <form method="POST" action="{{ url_for('admin.toggle_slot', slot_id=s.id) }}" style="display:inline">
+            <button type="submit" class="btn-ghost-sm">
+              {{ 'Deactivate' if s.is_active else 'Activate' }}
+            </button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.delete_slot', slot_id=s.id) }}"
+                style="display:inline"
+                onsubmit="return confirm('Delete this slot and all its bookings?')">
+            <button type="submit" class="btn-danger-sm">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">&#9680;</div>
+  <p>No upcoming slots found.</p>
+  <a href="{{ url_for('admin.add_slot') }}" class="btn-primary" style="margin-top:1rem">Add slots now</a>
+</div>
+{% endif %}
+{% endblock %}

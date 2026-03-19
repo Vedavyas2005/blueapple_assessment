@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Book a Slot — BlueApple{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Book a Slot</h1>
+    <p class="page-sub">Pick a date and an available time</p>
+  </div>
+  <div class="stat-row">
+    <div class="stat-chip">
+      <span class="stat-num green">{{ total_available }}</span>
+      <span class="stat-label">Available</span>
+    </div>
+    <div class="stat-chip">
+      <span class="stat-num red">{{ total_booked }}</span>
+      <span class="stat-label">Booked</span>
+    </div>
+  </div>
+</div>
+
+<!-- Date strip -->
+<div class="date-strip">
+  {% for d in dates %}
+  <a href="{{ url_for('main.index', date=d.isoformat()) }}"
+     class="date-pill {% if d == selected_date %}active{% endif %}">
+    <span class="dp-day">{{ d.strftime('%a') }}</span>
+    <span class="dp-num">{{ d.day }}</span>
+    <span class="dp-mon">{{ d.strftime('%b') }}</span>
+  </a>
+  {% endfor %}
+</div>
+
+<!-- Slot grid -->
+<div class="section-label">
+  {{ selected_date.strftime('%A, %d %B %Y') }}
+</div>
+
+{% if slots %}
+<div class="slots-grid" id="slots-grid">
+  {% for slot in slots %}
+  <div class="slot-card {% if not slot.is_available %}slot-booked{% endif %}"
+       data-slot-id="{{ slot.id }}"
+       {% if slot.is_available %}onclick="selectSlot(this, {{ slot.id }}, '{{ slot.start_time.strftime('%I:%M %p') }}')"{% endif %}>
+    <div class="slot-time">{{ slot.start_time.strftime('%I:%M %p') }}</div>
+    <div class="slot-end">– {{ slot.end_time.strftime('%I:%M %p') }}</div>
+    {% if slot.is_available %}
+    <div class="slot-badge avail">Open</div>
+    {% else %}
+    <div class="slot-badge taken">Full</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">&#9680;</div>
+  <p>No slots available for this date.</p>
+  {% if current_user.is_admin %}
+  <a href="{{ url_for('admin.add_slot') }}" class="btn-primary" style="margin-top:1rem">Add slots</a>
+  {% endif %}
+</div>
+{% endif %}
+
+<!-- Booking drawer -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="booking-drawer" id="bookingDrawer">
+  <div class="drawer-handle"></div>
+  <h2 class="drawer-title">Confirm Booking</h2>
+  <div class="drawer-slot-info" id="drawerSlotInfo">—</div>
+
+  <form method="POST" id="bookingForm" class="drawer-form">
+    <input type="hidden" name="slot_id" id="drawerSlotId" />
+
+    <div class="field">
+      <label>Purpose</label>
+      <select name="purpose">
+        {% for p in purposes %}
+        <option value="{{ p }}">{{ p }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label>Notes <span class="label-hint">(optional)</span></label>
+      <textarea name="notes" rows="3" placeholder="Any details for the organiser..."></textarea>
+    </div>
+
+    <div class="drawer-user-info">
+      <div class="dui-avatar">{{ current_user.name[0].upper() }}</div>
+      <div>
+        <div class="dui-name">{{ current_user.name }}</div>
+        <div class="dui-email">{{ current_user.email }}</div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-primary btn-full" id="drawerSubmitBtn">
+      Confirm Booking
+    </button>
+    <button type="button" class="btn-ghost btn-full" onclick="closeDrawer()">Cancel</button>
+  </form>
+</div>
+
+<!-- Upcoming bookings sidebar snippet -->
+{% if my_bookings %}
+<div class="section-label" style="margin-top:2.5rem">Your upcoming bookings</div>
+<div class="mini-booking-list">
+  {% for b in my_bookings %}
+  <div class="mini-booking">
+    <div class="mb-date">
+      <span>{{ b.slot.date.strftime('%d %b') }}</span>
+      <span class="mb-time">{{ b.slot.start_time.strftime('%I:%M %p') }}</span>
+    </div>
+    <div class="mb-info">
+      <div class="mb-ref">{{ b.reference }}</div>
+      <div class="mb-purpose">{{ b.purpose }}</div>
+    </div>
+    <div class="status-badge status-{{ b.status }}">{{ b.status }}</div>
+  </div>
+  {% endfor %}
+  <a href="{{ url_for('main.my_bookings') }}" class="view-all-link">View all &rarr;</a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+function selectSlot(el, slotId, timeStr) {
+  document.querySelectorAll('.slot-card').forEach(c => c.classList.remove('slot-selected'));
+  el.classList.add('slot-selected');
+  document.getElementById('drawerSlotId').value = slotId;
+  document.getElementById('drawerSlotInfo').textContent = timeStr + ' — {{ selected_date.strftime("%d %b %Y") }}';
+  document.getElementById('bookingForm').action = '/book/' + slotId;
+  document.getElementById('bookingDrawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+}
+function closeDrawer() {
+  document.getElementById('bookingDrawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.querySelectorAll('.slot-card').forEach(c => c.classList.remove('slot-selected'));
+}
+</script>
+{% endblock %}

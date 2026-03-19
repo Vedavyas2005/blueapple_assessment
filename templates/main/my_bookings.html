@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}My Bookings — BlueApple{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">My Bookings</h1>
+    <p class="page-sub">All your reservations in one place</p>
+  </div>
+  <a href="{{ url_for('main.index') }}" class="btn-primary">+ New Booking</a>
+</div>
+
+{% if bookings %}
+<div class="bookings-table-wrap">
+  <table class="bookings-table">
+    <thead>
+      <tr>
+        <th>Reference</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Purpose</th>
+        <th>Status</th>
+        <th>Booked on</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for b in bookings %}
+      <tr class="{% if b.status == 'cancelled' %}row-cancelled{% endif %}">
+        <td class="ref-cell">{{ b.reference }}</td>
+        <td>{{ b.slot.date.strftime('%d %b %Y') }}</td>
+        <td>{{ b.slot.start_time.strftime('%I:%M %p') }} – {{ b.slot.end_time.strftime('%I:%M %p') }}</td>
+        <td>{{ b.purpose or '—' }}</td>
+        <td><span class="status-badge status-{{ b.status }}">{{ b.status }}</span></td>
+        <td class="muted-cell">{{ b.created_at.strftime('%d %b, %H:%M') }}</td>
+        <td>
+          {% if b.status != 'cancelled' and b.slot.date >= today %}
+          <form method="POST" action="{{ url_for('main.cancel_booking', booking_id=b.id) }}"
+                onsubmit="return confirm('Cancel booking {{ b.reference }}?')">
+            <button type="submit" class="btn-danger-sm">Cancel</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">&#9711;</div>
+  <p>You haven't made any bookings yet.</p>
+  <a href="{{ url_for('main.index') }}" class="btn-primary" style="margin-top:1rem">Book your first slot</a>
+</div>
+{% endif %}
+{% endblock %}

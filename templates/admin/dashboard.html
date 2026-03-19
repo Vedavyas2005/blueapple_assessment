@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard — BlueApple{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-sub">Overview of today's activity</p>
+  </div>
+  <a href="{{ url_for('admin.add_slot') }}" class="btn-primary">+ Add Slots</a>
+</div>
+
+<!-- Stats -->
+<div class="admin-stats">
+  <div class="admin-stat-card">
+    <div class="asc-num">{{ total_bookings }}</div>
+    <div class="asc-label">Total bookings</div>
+  </div>
+  <div class="admin-stat-card">
+    <div class="asc-num accent-blue">{{ today_bookings }}</div>
+    <div class="asc-label">Booked today</div>
+  </div>
+  <div class="admin-stat-card">
+    <div class="asc-num accent-green">{{ total_slots }}</div>
+    <div class="asc-label">Active slots</div>
+  </div>
+  <div class="admin-stat-card">
+    <div class="asc-num accent-amber">{{ total_users }}</div>
+    <div class="asc-label">Registered users</div>
+  </div>
+</div>
+
+<!-- Admin quick nav -->
+<div class="admin-nav-cards">
+  <a href="{{ url_for('admin.manage_slots') }}" class="anc">
+    <div class="anc-icon">&#9635;</div>
+    <div>
+      <div class="anc-title">Manage Slots</div>
+      <div class="anc-sub">Add, toggle, or delete time slots</div>
+    </div>
+  </a>
+  <a href="{{ url_for('admin.manage_bookings') }}" class="anc">
+    <div class="anc-icon">&#9741;</div>
+    <div>
+      <div class="anc-title">All Bookings</div>
+      <div class="anc-sub">View and update booking statuses</div>
+    </div>
+  </a>
+  <a href="{{ url_for('admin.manage_users') }}" class="anc">
+    <div class="anc-icon">&#9651;</div>
+    <div>
+      <div class="anc-title">Users</div>
+      <div class="anc-sub">Browse all registered accounts</div>
+    </div>
+  </a>
+</div>
+
+<!-- Recent bookings -->
+<div class="section-label" style="margin-top:2rem">Recent bookings</div>
+{% if recent_bookings %}
+<div class="bookings-table-wrap">
+  <table class="bookings-table">
+    <thead>
+      <tr>
+        <th>Reference</th>
+        <th>User</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Purpose</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for b in recent_bookings %}
+      <tr>
+        <td class="ref-cell">{{ b.reference }}</td>
+        <td>{{ b.user.name }}</td>
+        <td>{{ b.slot.date.strftime('%d %b %Y') }}</td>
+        <td>{{ b.slot.start_time.strftime('%I:%M %p') }}</td>
+        <td>{{ b.purpose or '—' }}</td>
+        <td><span class="status-badge status-{{ b.status }}">{{ b.status }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state"><p>No bookings yet.</p></div>
+{% endif %}
+{% endblock %}

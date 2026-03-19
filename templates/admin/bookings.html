@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}All Bookings — BlueApple Admin{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">All Bookings</h1>
+    <p class="page-sub">View and update every reservation</p>
+  </div>
+  <div class="filter-tabs">
+    <a href="?status=all"       class="ftab {% if status_filter=='all' %}active{% endif %}">All</a>
+    <a href="?status=confirmed" class="ftab {% if status_filter=='confirmed' %}active{% endif %}">Confirmed</a>
+    <a href="?status=pending"   class="ftab {% if status_filter=='pending' %}active{% endif %}">Pending</a>
+    <a href="?status=cancelled" class="ftab {% if status_filter=='cancelled' %}active{% endif %}">Cancelled</a>
+  </div>
+</div>
+
+{% if bookings %}
+<div class="bookings-table-wrap">
+  <table class="bookings-table">
+    <thead>
+      <tr>
+        <th>Reference</th>
+        <th>User</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Purpose</th>
+        <th>Status</th>
+        <th>Update</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for b in bookings %}
+      <tr class="{% if b.status == 'cancelled' %}row-cancelled{% endif %}">
+        <td class="ref-cell">{{ b.reference }}</td>
+        <td>
+          <div>{{ b.user.name }}</div>
+          <div class="muted-cell">{{ b.user.email }}</div>
+        </td>
+        <td>{{ b.slot.date.strftime('%d %b %Y') }}</td>
+        <td>{{ b.slot.start_time.strftime('%I:%M %p') }}</td>
+        <td>{{ b.purpose or '—' }}</td>
+        <td><span class="status-badge status-{{ b.status }}">{{ b.status }}</span></td>
+        <td>
+          <form method="POST" action="{{ url_for('admin.update_booking_status', booking_id=b.id) }}"
+                class="inline-form">
+            <select name="status" class="select-sm">
+              <option value="confirmed" {% if b.status=='confirmed' %}selected{% endif %}>Confirmed</option>
+              <option value="pending"   {% if b.status=='pending' %}selected{% endif %}>Pending</option>
+              <option value="cancelled" {% if b.status=='cancelled' %}selected{% endif %}>Cancelled</option>
+            </select>
+            <button type="submit" class="btn-ghost-sm">Save</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state"><p>No bookings match this filter.</p></div>
+{% endif %}
+{% endblock %}
